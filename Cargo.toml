@@ -1,0 +1,12 @@
+[package]
+name = "whatlang-ffi"
+version = "0.1.0"
+authors = ["Sergey Potapov <blake131313@gmail.com>"]
+
+[dependencies]
+whatlang = "0.5.0"
+libc = "0.2.29"
+
+[lib]
+name = "whatlang"
+crate-type = ["staticlib", "cdylib"]
