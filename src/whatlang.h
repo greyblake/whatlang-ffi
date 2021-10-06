@@ -120,7 +120,8 @@ struct whatlang_info {
   double confidence;
 };
 
-uint8_t whatlang_detect(char* text, struct whatlang_info* info);
+uint8_t whatlang_detect(const char* text, struct whatlang_info* info);
+uint8_t whatlang_detectn(const char* text, size_t len, struct whatlang_info* info);
 
 // It's your responsibility to ensure, that buffer size is at least 30 bytes.
 //

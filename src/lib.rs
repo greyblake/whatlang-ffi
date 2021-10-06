@@ -14,24 +14,13 @@ pub struct CInfo {
 }
 
 #[no_mangle]
-pub extern fn whatlang_detect(ptr: *const c_char, cinfo: &mut CInfo) -> u8 {
-    let cs = unsafe { CStr::from_ptr(ptr) };
-
-    match cs.to_str() {
+pub extern "C" fn whatlang_detectn(ptr: *const c_char, len: libc::size_t, cinfo: &mut CInfo) -> u8 {
+    let text = unsafe {
+        std::str::from_utf8(core::slice::from_raw_parts(ptr as *const u8, len))
+    };
+    match text {
         Ok(s) => {
-            let res = detect(s);
-            match res {
-                Some(info) => {
-                    cinfo.lang = info.lang();
-                    cinfo.script = info.script();
-                    cinfo.confidence = info.confidence();
-                    return 0;
-                },
-                None => {
-                    // Could not detect language
-                    return 1;
-                }
-            }
+            detect_internal(s, cinfo)
         },
         Err(_) => {
             // Bad string pointer
@@ -41,7 +30,37 @@ pub extern fn whatlang_detect(ptr: *const c_char, cinfo: &mut CInfo) -> u8 {
 }
 
 #[no_mangle]
-pub extern fn whatlang_lang_eng_name(lang: Lang, buffer_ptr: *mut c_char) {
+pub extern "C" fn whatlang_detect(ptr: *const c_char, cinfo: &mut CInfo) -> u8 {
+    let cs = unsafe { CStr::from_ptr(ptr) };
+    match cs.to_str() {
+        Ok(s) => {
+            detect_internal(s, cinfo)
+        },
+        Err(_) => {
+            // Bad string pointer
+            return 2;
+        }
+    }
+}
+
+fn detect_internal(text: &str, cinfo: &mut CInfo) -> u8 {
+    let res = detect(text);
+    match res {
+        Some(info) => {
+            cinfo.lang = info.lang();
+            cinfo.script = info.script();
+            cinfo.confidence = info.confidence();
+            return 0;
+        },
+        None => {
+            // Could not detect language
+            return 1;
+        }
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn whatlang_lang_eng_name(lang: Lang, buffer_ptr: *mut c_char) {
     // Here unwrap is always safe, because whatlang always returns a valid str
     let s = CString::new(lang.eng_name()).unwrap();
     unsafe {
@@ -50,7 +69,7 @@ pub extern fn whatlang_lang_eng_name(lang: Lang, buffer_ptr: *mut c_char) {
 }
 
 #[no_mangle]
-pub extern fn whatlang_lang_code(lang: Lang, buffer_ptr: *mut c_char) {
+pub extern "C" fn whatlang_lang_code(lang: Lang, buffer_ptr: *mut c_char) {
     // Here unwrap is supposed to be safe, because whatlang return valid str
     let s = CString::new(lang.code()).unwrap();
     unsafe {
@@ -59,7 +78,7 @@ pub extern fn whatlang_lang_code(lang: Lang, buffer_ptr: *mut c_char) {
 }
 
 #[no_mangle]
-pub extern fn whatlang_lang_name(lang: Lang, buffer_ptr: *mut c_char) {
+pub extern "C" fn whatlang_lang_name(lang: Lang, buffer_ptr: *mut c_char) {
     // Here unwrap is supposed to be safe, because whatlang return valid str
     let s = CString::new(lang.name()).unwrap();
     unsafe {
@@ -68,7 +87,7 @@ pub extern fn whatlang_lang_name(lang: Lang, buffer_ptr: *mut c_char) {
 }
 
 #[no_mangle]
-pub extern fn whatlang_script_name(script: Script, buffer_ptr: *mut c_char) {
+pub extern "C" fn whatlang_script_name(script: Script, buffer_ptr: *mut c_char) {
     // Here unwrap is supposed to be safe, because whatlang return valid str
     let s = CString::new(script.name()).unwrap();
     unsafe {
