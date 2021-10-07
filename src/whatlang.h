@@ -125,7 +125,7 @@ uint8_t whatlang_detectn(const char* text, size_t len, struct whatlang_info* inf
 
 // It's your responsibility to ensure, that buffer size is at least 30 bytes.
 //
-void whatlang_lang_code(uint8_t lang, char* buffer);
-void whatlang_lang_eng_name(uint8_t lang, char* buffer);
-void whatlang_lang_name(uint8_t lang, char* buffer);
-void whatlang_script_name(uint8_t script, char* buffer);
+size_t whatlang_lang_code(uint8_t lang, char* buffer);
+size_t whatlang_lang_eng_name(uint8_t lang, char* buffer);
+size_t whatlang_lang_name(uint8_t lang, char* buffer);
+size_t whatlang_script_name(uint8_t script, char* buffer);

@@ -1,8 +1,10 @@
 extern crate whatlang;
 extern crate libc;
 
-use whatlang::{detect, Lang, Info, Script};
+use libc::size_t;
+use whatlang::{detect, Lang, Script};
 use std::ffi::{CStr, CString};
+use std::ptr;
 use std::os::raw::c_char;
 
 #[repr(C)]
@@ -60,37 +62,49 @@ fn detect_internal(text: &str, cinfo: &mut CInfo) -> u8 {
 }
 
 #[no_mangle]
-pub extern "C" fn whatlang_lang_eng_name(lang: Lang, buffer_ptr: *mut c_char) {
+pub extern "C" fn whatlang_lang_eng_name(lang: Lang, buffer_ptr: *mut c_char) -> size_t {
     // Here unwrap is always safe, because whatlang always returns a valid str
     let s = CString::new(lang.eng_name()).unwrap();
     unsafe {
-        libc::strcpy(buffer_ptr, s.as_ptr());
+		if buffer_ptr != ptr::null_mut() {
+			libc::strncpy(buffer_ptr, s.as_ptr(), 30);
+		}
     }
+    s.as_bytes().len()
 }
 
 #[no_mangle]
-pub extern "C" fn whatlang_lang_code(lang: Lang, buffer_ptr: *mut c_char) {
+pub extern "C" fn whatlang_lang_code(lang: Lang, buffer_ptr: *mut c_char) -> size_t {
     // Here unwrap is supposed to be safe, because whatlang return valid str
     let s = CString::new(lang.code()).unwrap();
     unsafe {
-        libc::strcpy(buffer_ptr, s.as_ptr());
+		if buffer_ptr != ptr::null_mut() {
+			libc::strncpy(buffer_ptr, s.as_ptr(), 30);
+		}
     }
+    s.as_bytes().len()
 }
 
 #[no_mangle]
-pub extern "C" fn whatlang_lang_name(lang: Lang, buffer_ptr: *mut c_char) {
+pub extern "C" fn whatlang_lang_name(lang: Lang, buffer_ptr: *mut c_char) -> size_t {
     // Here unwrap is supposed to be safe, because whatlang return valid str
     let s = CString::new(lang.name()).unwrap();
     unsafe {
-        libc::strcpy(buffer_ptr, s.as_ptr());
+		if buffer_ptr != ptr::null_mut() {
+			libc::strncpy(buffer_ptr, s.as_ptr(), 30);
+		}
     }
+    s.as_bytes().len()
 }
 
 #[no_mangle]
-pub extern "C" fn whatlang_script_name(script: Script, buffer_ptr: *mut c_char) {
+pub extern "C" fn whatlang_script_name(script: Script, buffer_ptr: *mut c_char) -> size_t {
     // Here unwrap is supposed to be safe, because whatlang return valid str
     let s = CString::new(script.name()).unwrap();
     unsafe {
-        libc::strcpy(buffer_ptr, s.as_ptr());
+		if buffer_ptr != ptr::null_mut() {
+			libc::strncpy(buffer_ptr, s.as_ptr(), 30);
+		}
     }
+    s.as_bytes().len()
 }
