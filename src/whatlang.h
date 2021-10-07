@@ -120,12 +120,45 @@ struct whatlang_info {
   double confidence;
 };
 
+// Detect the language in the input `text`
+//
+// param: `text` a null-terminated c-string containing the input text.
+// param: `info` output pointer for the `whatlang_info`.
+// returns: 0 on success, and non-zero on failure.
 uint8_t whatlang_detect(const char* text, struct whatlang_info* info);
+
+// Detect the language in the input `text`
+//
+// param: `text` a c-string containing the input text.
+// param: `len` the length of the string in characters.
+// param: `info` output pointer for the `whatlang_info`.
+// returns: 0 on success, and non-zero on failure.
 uint8_t whatlang_detectn(const char* text, size_t len, struct whatlang_info* info);
 
+// Get the language code from the `whatlang_info.lang`.
+//
 // It's your responsibility to ensure, that buffer size is at least 30 bytes.
 //
+// Returns: the number of characters written to the byffer, excluding the null terminator.
 size_t whatlang_lang_code(uint8_t lang, char* buffer);
+
+// Get the english name for the language from the `whatlang_info.lang`.
+//
+// It's your responsibility to ensure, that buffer size is at least 30 bytes.
+//
+// Returns: the number of characters written to the byffer, excluding the null terminator.
 size_t whatlang_lang_eng_name(uint8_t lang, char* buffer);
+
+// Get the  name for the language from the `whatlang_info.lang`.
+//
+// It's your responsibility to ensure, that buffer size is at least 30 bytes.
+//
+// Returns: the number of characters written to the byffer, excluding the null terminator.
 size_t whatlang_lang_name(uint8_t lang, char* buffer);
+
+// Get the  name for the script from the `whatlang_info.script`.
+//
+// It's your responsibility to ensure, that buffer size is at least 30 bytes.
+//
+// Returns: the number of characters written to the byffer, excluding the null terminator.
 size_t whatlang_script_name(uint8_t script, char* buffer);
