@@ -5,6 +5,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+typedef enum whatlang_status : uint8_t {
+    OK = 0,
+    DETECT_FAILURE = 1,
+    BAD_TEXT_PTR = 2,
+    BAD_OUTPUT_PTR = 3,
+} whatlang_status_t;
+
 static const uint8_t WHATLANG_LANG_AKA = 0;
 static const uint8_t WHATLANG_LANG_AMH = 1;
 static const uint8_t WHATLANG_LANG_ARB = 2;
@@ -125,7 +132,7 @@ struct whatlang_info {
 // param: `text` a null-terminated c-string containing the input text.
 // param: `info` output pointer for the `whatlang_info`.
 // returns: 0 on success, and non-zero on failure.
-uint8_t whatlang_detect(const char* text, struct whatlang_info* info);
+whatlang_status_t whatlang_detect(const char* text, struct whatlang_info* info);
 
 // Detect the language in the input `text`
 //
@@ -133,7 +140,7 @@ uint8_t whatlang_detect(const char* text, struct whatlang_info* info);
 // param: `len` the length of the string in characters.
 // param: `info` output pointer for the `whatlang_info`.
 // returns: 0 on success, and non-zero on failure.
-uint8_t whatlang_detectn(const char* text, size_t len, struct whatlang_info* info);
+whatlang_status_t whatlang_detectn(const char* text, size_t len, struct whatlang_info* info);
 
 // Get the language code from the `whatlang_info.lang`.
 //

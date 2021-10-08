@@ -7,6 +7,14 @@ use std::os::raw::c_char;
 use std::ptr;
 use whatlang::{detect, Lang, Script};
 
+#[repr(u8)]
+pub enum WhatlangStatus {
+    Ok = 0,
+    DetectFailure = 1,
+    BadTextPtr = 2,
+    BadOutputPtr = 3,
+}
+
 #[repr(C)]
 #[derive(Debug)]
 pub struct CInfo {
@@ -19,14 +27,14 @@ pub struct CInfo {
 pub unsafe extern "C" fn whatlang_detectn(
     ptr: *const c_char,
     len: libc::size_t,
-    cinfo: &mut CInfo,
-) -> u8 {
+    cinfo: *mut CInfo,
+) -> WhatlangStatus {
     let text = core::slice::from_raw_parts(ptr as *const u8, len);
     detect_internal(&text, cinfo)
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn whatlang_detect(ptr: *const c_char, cinfo: &mut CInfo) -> u8 {
+pub unsafe extern "C" fn whatlang_detect(ptr: *const c_char, cinfo: *mut CInfo) -> WhatlangStatus {
     let cs = CStr::from_ptr(ptr);
     detect_internal(cs.to_bytes(), cinfo)
 }
@@ -51,26 +59,32 @@ pub unsafe extern "C" fn whatlang_script_name(script: Script, buffer_ptr: *mut c
     copy_cstr(script.name(), buffer_ptr)
 }
 
-fn detect_internal(text: &[u8], cinfo: &mut CInfo) -> u8 {
+fn detect_internal(text: &[u8], cinfo: *mut CInfo) -> WhatlangStatus {
+    if cinfo == ptr::null_mut() {
+        return WhatlangStatus::BadOutputPtr;
+    }
+
     match std::str::from_utf8(text) {
         Ok(s) => {
             let res = detect(s);
             match res {
                 Some(info) => {
-                    cinfo.lang = info.lang();
-                    cinfo.script = info.script();
-                    cinfo.confidence = info.confidence();
-                    return 0;
+                    unsafe {
+                        (*cinfo).lang = info.lang();
+                        (*cinfo).script = info.script();
+                        (*cinfo).confidence = info.confidence();
+                    }
+                    WhatlangStatus::Ok
                 }
                 None => {
                     // Could not detect language
-                    return 1;
+                    WhatlangStatus::DetectFailure
                 }
             }
         }
         Err(_) => {
             // Bad string pointer
-            return 2;
+            WhatlangStatus::BadTextPtr
         }
     }
 }
