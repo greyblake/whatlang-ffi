@@ -145,6 +145,7 @@ struct whatlang_info {
   whatlang_lang_t lang;
   whatlang_script_t script;
   double confidence;
+  bool is_reliable;
 };
 
 // Detect the language in the input `text`
