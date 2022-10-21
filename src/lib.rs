@@ -21,6 +21,7 @@ pub struct CInfo {
     lang: Lang,
     script: Script,
     confidence: f64,
+    is_reliable: bool,
 }
 
 #[no_mangle]
@@ -73,6 +74,7 @@ fn detect_internal(text: &[u8], cinfo: *mut CInfo) -> WhatlangStatus {
                         (*cinfo).lang = info.lang();
                         (*cinfo).script = info.script();
                         (*cinfo).confidence = info.confidence();
+                        (*cinfo).is_reliable = info.is_reliable();
                     }
                     WhatlangStatus::Ok
                 }
